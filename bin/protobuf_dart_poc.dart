@@ -2,21 +2,21 @@ import 'package:protobuf_dart_poc/services/user_service.dart';
 import 'package:protobuf_dart_poc/user/user_proto_mapper.dart';
 
 /// This file is the entry point for the protobuf_dart_poc application.
-/// 
+///
 /// To use this application, you need to have protobuf installed. You can install it using Homebrew by running the following command:
-/// 
+///
 /// ```
 /// brew install protobuf
 /// ```
-/// 
+///
 /// After installing protobuf, you can generate Dart code from your protobuf files using the `protoc` command. For example, to generate Dart code from the `user.proto` file located in the `lib/proto` directory, you can run the following command:
-/// 
+///
 /// ```
 /// protoc --dart_out=lib/generated lib/proto/user.proto
 /// ```
-/// 
+///
 /// This will generate the Dart code in the `lib/generated` directory, which you can then use in your application.
-/// 
+///
 
 void main() {
   final userMapper = UserProtoMapper();
@@ -24,6 +24,9 @@ void main() {
 
   final user = userService.getUser('1');
   print(user.name);
+
+  final userBuffer = userService.getUser('2');
+  print(userBuffer.name);
 }
 
 /// # Advantages of Using Protobuf
