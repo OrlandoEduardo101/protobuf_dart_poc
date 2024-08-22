@@ -1,3 +1,9 @@
+import 'dart:developer';
+
+import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:protobuf_dart_poc/services/database_service.dart';
+import 'package:protobuf_dart_poc/services/encrypt/encryption_aes.dart';
+import 'package:protobuf_dart_poc/services/encrypt/i_encrypt.dart';
 import 'package:protobuf_dart_poc/services/user_service.dart';
 import 'package:protobuf_dart_poc/user/user_proto_mapper.dart';
 
@@ -20,13 +26,25 @@ import 'package:protobuf_dart_poc/user/user_proto_mapper.dart';
 
 void main() {
   final userMapper = UserProtoMapper();
-  final userService = UserService(userMapper);
+  final IEncryption encryption = EncryptionAes(
+    key: encrypt.Key.fromUtf8('V9lK7eX8z2RtQpLf1dWjN6UsGa5BmHy3'),
+    iv: encrypt.IV.fromLength(16),
+  );
+  final db = DatabaseService(encryption);
+  final userService = UserService(userMapper, db);
+
+  db.initialize();
 
   final user = userService.getUser('1');
-  print(user.name);
+  log('From Json To Proto user ${user.name}');
 
-  final userBuffer = userService.getUser('2');
-  print(userBuffer.name);
+  final user2 = userService.getUser('2');
+
+  userService.saveUserProto(userMapper.toProto(user2));
+
+  final userLocal = userService.getUserProto('2');
+  log('From Local Saved Buffer To Proto user ${userLocal?.name}');
+  db.close();
 }
 
 /// # Advantages of Using Protobuf
