@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+// Definição da mensagem para User
+message UserProto {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+// Definição da mensagem para AdminUser
+message AdminUserProto {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+}
