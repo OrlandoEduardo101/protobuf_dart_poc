@@ -1,26 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive.dart'; // Dependência para compressão Gzip
+
 import 'proto/response.pb.dart';
 
-/// This file contains the main backend logic for the Flutter Protobuf POC project.
-/// It is responsible for handling the backend operations and communication with the server.
-/// 
-/// The server is responsible for handling two types of requests:
 final responseMap = {
   'data': List<Map<String, dynamic>>.generate(
-      10000000,
+      1000000,
       (index) => {
             'name': 'Zeze Perrela $index',
             'age': index,
             'email': 'zeze_$index@perrela.com',
           })
 };
+
 final responseMapProto = ResponseMap();
 
 Future<void> main() async {
-
-  /// Armazena os dados de resposta em um objeto protobuf na memoria
+  // Armazena os dados de resposta em um objeto protobuf na memória
   responseMap['data']?.forEach((item) {
     responseMapProto.data.add(ResponseItem()
       ..name = item['name']
@@ -28,7 +26,7 @@ Future<void> main() async {
       ..email = item['email']);
   });
 
-  /// Inicia o servidor HTTP
+  // Inicia o servidor HTTP
   final server = await HttpServer.bind(
     InternetAddress.loopbackIPv4,
     8080,
@@ -36,12 +34,14 @@ Future<void> main() async {
 
   print('Listening on localhost:${server.port}');
 
-  /// Aguarda por requisições
+  // Aguarda por requisições
   await for (HttpRequest request in server) {
     if (request.uri.path == '/rest') {
       _handleRestResponse(request);
     } else if (request.uri.path == '/protobuf') {
       _handleProtobufResponse(request);
+    } else if (request.uri.path == '/json-gzip') {
+      _handleJsonGzipResponse(request); // Novo endpoint para resposta com Gzip
     } else {
       request.response
         ..statusCode = HttpStatus.notFound
@@ -50,19 +50,40 @@ Future<void> main() async {
     }
   }
 }
-/// Manipula a resposta REST
+
+// Manipula a resposta REST
 void _handleRestResponse(HttpRequest request) {
   request.response
     ..headers.contentType = ContentType.json
     ..write(jsonEncode(responseMap))
     ..close();
 }
-/// Manipula a resposta protobuf
+
+// Manipula a resposta Protobuf
 void _handleProtobufResponse(HttpRequest request) {
   final bodyBytes = responseMapProto.writeToBuffer();
 
   request.response
     ..headers.contentType = ContentType('application', 'octet-stream')
     ..add(bodyBytes)
+    ..close();
+}
+
+// Manipula a resposta Protobuf com Gzip
+void _handleJsonGzipResponse(HttpRequest request) {
+  // 1. Serializa o JSON em uma String
+  final jsonString = jsonEncode(responseMap);
+
+  // 2. Codifica a String JSON em UTF-8
+  final jsonBytes = utf8.encode(jsonString);
+
+  // 3. Comprime os bytes codificados usando GZip
+  final gzipBytes = GZipEncoder().encode(jsonBytes)!;
+
+  // 4. Retorna os dados GZip no endpoint GET
+  request.response
+    ..headers.contentType = ContentType('application', 'octet-stream')
+    // ..headers.set('Content-Encoding', 'gzip') // Indica que o conteúdo está comprimido
+    ..add(gzipBytes)
     ..close();
 }
