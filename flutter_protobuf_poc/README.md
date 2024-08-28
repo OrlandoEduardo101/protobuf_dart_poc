@@ -3,7 +3,10 @@
 A new Flutter project.
 
 Teste running back and front in localhost 
+![image](https://github.com/user-attachments/assets/111b2967-30ad-499a-ae34-1b4fe095058c)
+
 ![image](https://github.com/user-attachments/assets/18c02840-c20d-4132-8081-b095797a8a93)
+![image](https://github.com/user-attachments/assets/1e5f8929-22f5-4621-9f75-0640cb75a00d)
 
 
 ## Getting Started
