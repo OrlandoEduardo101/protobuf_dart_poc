@@ -35,6 +35,7 @@ class _PerformanceTestPageState extends State<PerformanceTestPage> {
   String protoRequestbufTime = '';
   String restRequestTime = '';
 
+  /// Testa o endpoint REST
   Future<void> _testRestEndpoint() async {
     setState(() {
       restTime = 'Runnining...';
@@ -56,6 +57,7 @@ class _PerformanceTestPageState extends State<PerformanceTestPage> {
     }
   }
 
+  /// Testa o endpoint protobuf
   Future<void> _testProtobufEndpoint() async {
     setState(() {
       protobufTime = 'Runnining...';
