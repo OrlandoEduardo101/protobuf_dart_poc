@@ -16,15 +16,13 @@ final responseMap = {
 };
 
 final responseMapProto = ResponseMap();
+List<int> gzipResponse = [];
 
 Future<void> main() async {
   // Armazena os dados de resposta em um objeto protobuf na memória
-  responseMap['data']?.forEach((item) {
-    responseMapProto.data.add(ResponseItem()
-      ..name = item['name']
-      ..age = item['age']
-      ..email = item['email']);
-  });
+  compressProto();
+
+  gzipResponse = compressGzip();
 
   // Inicia o servidor HTTP
   final server = await HttpServer.bind(
@@ -51,6 +49,15 @@ Future<void> main() async {
   }
 }
 
+void compressProto() {
+  responseMap['data']?.forEach((item) {
+    responseMapProto.data.add(ResponseItem()
+      ..name = item['name']
+      ..age = item['age']
+      ..email = item['email']);
+  });
+}
+
 // Manipula a resposta REST
 void _handleRestResponse(HttpRequest request) {
   request.response
@@ -71,6 +78,15 @@ void _handleProtobufResponse(HttpRequest request) {
 
 // Manipula a resposta Protobuf com Gzip
 void _handleJsonGzipResponse(HttpRequest request) {
+  // 4. Retorna os dados GZip no endpoint GET
+  request.response
+    ..headers.contentType = ContentType('application', 'octet-stream')
+    // ..headers.set('Content-Encoding', 'gzip') // Indica que o conteúdo está comprimido
+    ..add(gzipResponse)
+    ..close();
+}
+
+List<int> compressGzip() {
   // 1. Serializa o JSON em uma String
   final jsonString = jsonEncode(responseMap);
 
@@ -80,10 +96,5 @@ void _handleJsonGzipResponse(HttpRequest request) {
   // 3. Comprime os bytes codificados usando GZip
   final gzipBytes = GZipEncoder().encode(jsonBytes)!;
 
-  // 4. Retorna os dados GZip no endpoint GET
-  request.response
-    ..headers.contentType = ContentType('application', 'octet-stream')
-    // ..headers.set('Content-Encoding', 'gzip') // Indica que o conteúdo está comprimido
-    ..add(gzipBytes)
-    ..close();
+  return gzipBytes;
 }
