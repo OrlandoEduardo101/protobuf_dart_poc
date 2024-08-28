@@ -9,7 +9,7 @@ import 'proto/response.pb.dart';
 /// The server is responsible for handling two types of requests:
 final responseMap = {
   'data': List<Map<String, dynamic>>.generate(
-      1000000,
+      10000000,
       (index) => {
             'name': 'Zeze Perrela $index',
             'age': index,

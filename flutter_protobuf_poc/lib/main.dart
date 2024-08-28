@@ -40,6 +40,8 @@ class _PerformanceTestPageState extends State<PerformanceTestPage> {
     setState(() {
       restTime = 'Runnining...';
     });
+    /// Inicia o cronometro
+
     final stopwatch = Stopwatch()..start();
 
     final response = await http.get(Uri.parse('http://127.0.0.1:8080/rest'));
@@ -62,6 +64,7 @@ class _PerformanceTestPageState extends State<PerformanceTestPage> {
     setState(() {
       protobufTime = 'Runnining...';
     });
+    /// Inicia o cronometro
     final stopwatch = Stopwatch()..start();
 
     final response = await http.get(Uri.parse('http://127.0.0.1:8080/protobuf'));
