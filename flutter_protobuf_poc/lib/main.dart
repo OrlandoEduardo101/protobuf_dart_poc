@@ -105,7 +105,7 @@ class _PerformanceTestPageState extends State<PerformanceTestPage> {
 
     try {
       // Faz a requisição ao endpoint Gzip
-      final response = await http.get(Uri.parse('http://127.0.0.1:8080/json-gzip'));
+      final response = await http.get(Uri.parse('http://127.0.0.1:3002/json-gzip'));
       setState(() {
         gzipRequestbufTime = '${stopwatch.elapsedMilliseconds} ms';
       });
