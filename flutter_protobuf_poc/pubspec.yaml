@@ -40,6 +40,7 @@ dependencies:
   http_certificate_pinning: ^2.1.3
   path_provider: ^2.1.4
   archive: ^3.6.1
+  http_plus: ^0.2.3
 
 dev_dependencies:
   flutter_test:
