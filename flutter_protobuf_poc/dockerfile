@@ -1,0 +1,49 @@
+# Use uma imagem base que tenha Dart e outras dependências necessárias para rodar Flutter
+FROM dart:stable AS base
+
+# Instale Flutter manualmente
+RUN apt-get update && apt-get install -y unzip xz-utils zip libglu1-mesa git curl
+RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutter
+ENV PATH="$PATH:/flutter/bin"
+
+# Verifique se o Flutter foi instalado corretamente
+RUN flutter doctor -v
+
+# Defina o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copie o arquivo pubspec para instalar as dependências
+COPY pubspec.* ./
+
+# Instale as dependências do Flutter e do Dart
+RUN flutter pub get
+
+# Copie o resto dos arquivos do projeto para dentro do container
+COPY . .
+
+# Crie o diretório de saída para o executável compilado
+RUN mkdir -p bin
+
+# Compile o servidor Dart para um executável
+RUN dart compile exe lib/main_backend.dart -o bin/main_backend
+
+# Use uma imagem base mais leve para rodar o executável
+FROM debian:buster-slim AS runtime
+
+# Instale dependências mínimas para rodar o executável
+RUN apt-get update && apt-get install -y ca-certificates && apt-get clean
+
+# Defina o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copie o executável compilado da imagem anterior
+COPY --from=base /app/bin/main_backend /app/main_backend
+
+# Exponha a porta que o servidor vai usar
+EXPOSE 3002
+
+# Defina o executável como o entrypoint
+ENTRYPOINT ["/app/main_backend"]
+
+# docker build -t dart-gzip-protobuf .   
+# docker run -p 3002:3002 dart-gzip-protobuf

@@ -1,0 +1,10 @@
+# Ignorar arquivos temporários e desnecessários
+*.tmp
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ignorar diretórios de build do Flutter
+build/
