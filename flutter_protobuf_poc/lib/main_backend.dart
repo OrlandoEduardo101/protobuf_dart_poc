@@ -26,8 +26,8 @@ Future<void> main() async {
 
   // Inicia o servidor HTTP
   final server = await HttpServer.bind(
-    InternetAddress.loopbackIPv4,
-    8080,
+    '0.0.0.0',
+    3002,
   );
 
   print('Listening on localhost:${server.port}');

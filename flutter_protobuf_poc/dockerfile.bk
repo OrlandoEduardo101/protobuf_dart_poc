@@ -1,5 +1,5 @@
 # Use uma imagem base com Dart 3.5.1 e prepare para instalar Flutter
-FROM dart:3.5.1 AS build
+FROM dart:3.5.1 AS base
 
 # Instale as dependências necessárias, incluindo o protobuf-compiler e git
 RUN apt-get update && apt-get install -y \
@@ -42,31 +42,32 @@ RUN protoc --dart_out=grpc:lib -Ipb proto/*.proto --proto_path .
 # Verifique se as dependências foram instaladas corretamente
 RUN dart pub deps
 
-# Crie o diretório para o executável compilado
-RUN mkdir -p bin
-
-# Compile o servidor Dart para um executável
-RUN dart compile exe lib/main_backend.dart -o bin/main_backend
-
 # Imagem final usando uma base leve
 FROM debian:buster-slim AS runtime
 
-# Instale dependências mínimas para rodar o executável
+# Instale dependências mínimas para rodar a aplicação Dart, incluindo o git
 RUN apt-get update && apt-get install -y \
-    ca-certificates curl libglu1-mesa \
+    ca-certificates git curl libglu1-mesa clang cmake ninja-build pkg-config \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Defina o diretório de trabalho
 WORKDIR /app
 
-# Copie o executável compilado da imagem de build
-COPY --from=build /app/bin/main_backend /app/main_backend
+# Copie os arquivos do projeto e o Dart SDK da imagem base
+COPY --from=base /app /app
+COPY --from=base /usr/lib/dart /usr/lib/dart
+COPY --from=base /flutter /flutter
+COPY --from=base /root/.pub-cache /root/.pub-cache
+
+# Configure o PATH para Dart e Flutter
+ENV PATH="/usr/lib/dart/bin:/flutter/bin:/flutter/bin/cache/dart-sdk/bin:/root/.pub-cache/bin:$PATH"
 
 # Exponha a porta que o servidor vai usar
 EXPOSE 3002
 
-# Defina o executável como entrypoint
-ENTRYPOINT ["/app/main_backend"]
+# Comando para rodar a aplicação Dart
+CMD ["dart", "run", "lib/main_backend.dart"]
+
 
 # docker build -t dart-gzip-protobuf .
 # docker run -p 3002:3002 dart-gzip-protobuf
