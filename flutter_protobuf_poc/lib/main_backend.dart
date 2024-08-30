@@ -7,7 +7,7 @@ import 'proto/response.pb.dart';
 
 final responseMap = {
   'data': List<Map<String, dynamic>>.generate(
-      1000000,
+      100000,
       (index) => {
             'name': 'Zeze Perrela $index',
             'age': index,
